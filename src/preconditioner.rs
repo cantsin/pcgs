@@ -1,8 +1,9 @@
 use std::vec::Vec;
 
 use sparse_symmetric_matrix::SparseSymmetricMatrix;
+use vector::Vector;
 
-struct Preconditioner {
+pub struct Preconditioner {
     length: usize,
     values: Vec<f64>,
     row_index: Vec<usize>,
@@ -11,8 +12,6 @@ struct Preconditioner {
     inverse_diagonals: Vec<f64>,
 }
 
-const TOLERANCE_FACTOR: f64 = 1e-5;
-const MAX_ITERATIONS: usize = 100;
 const MODIFIED_PARAMETER: f64 = 0.97;
 const MIN_DIAGONAL_RATIO: f64 = 0.25;
 
@@ -121,5 +120,10 @@ impl Preconditioner {
             diagonals: diagonals,
             inverse_diagonals: inverse_diagonals,
         }
+    }
+
+    pub fn apply(&self, v: &Vector) -> Vector {
+        // TODO
+        return Vector(vec![]);
     }
 }

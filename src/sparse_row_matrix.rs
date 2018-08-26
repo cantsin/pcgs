@@ -1,5 +1,4 @@
 use std::vec::Vec;
-use std::ops::Mul;
 use std::fmt;
 
 use vector::Vector;
@@ -37,6 +36,23 @@ impl SparseRowMatrix {
     fn len(&self) -> usize {
         return self.row_pointers.len() - 1;
     }
+
+    // do not use the Mul trait, we want to borrow self.
+    pub fn apply(&self, rhs: &Vector) -> Vector {
+        assert!(self.len() == rhs.0.len());
+        let n = self.len();
+        let mut result = vec![];
+        for i in 0..n {
+            result.push(0.0);
+            let x = self.row_pointers[i];
+            let y = self.row_pointers[i + 1];
+            for j in x..y {
+                let index = self.column_index[j];
+                result[i] += self.values[j] * rhs.0[index];
+            }
+        }
+        Vector(result)
+    }
 }
 
 impl fmt::Debug for SparseRowMatrix {
@@ -57,25 +73,5 @@ impl fmt::Debug for SparseRowMatrix {
         writeln!(f, "sparse({:?},...", rows);
         writeln!(f, "       {:?},...", columns);
         write!(f, "       {:?}, {}, {})", values, n, n)
-    }
-}
-
-impl Mul<Vector> for SparseRowMatrix {
-    type Output = Vector;
-
-    fn mul(self, rhs: Vector) -> Vector {
-        assert!(self.len() == rhs.len());
-        let n = self.len();
-        let mut result = vec![];
-        for i in 0..n {
-            result.push(0.0);
-            let x = self.row_pointers[i];
-            let y = self.row_pointers[i + 1];
-            for j in x..y {
-                let index = self.column_index[j];
-                result[i] += self.values[j] * rhs[index];
-            }
-        }
-        result
     }
 }
