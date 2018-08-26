@@ -3,6 +3,7 @@ extern crate rustml;
 mod sparse_symmetric_matrix;
 mod sparse_row_matrix;
 mod vector;
+mod preconditioner;
 
 fn main() {}
 
