@@ -13,7 +13,7 @@ const MAX_ITERATIONS: usize = 100;
 const TOLERANCE_FACTOR: f64 = 1e-5;
 
 pub fn solver(m: &SparseSymmetricMatrix, rhs: &Vector) -> SolverResult {
-    let mut r = Vector(rhs.0.iter().cloned().collect());
+    let mut r = rhs.clone();
     let residual_out = r.largest_absolute_value();
     if residual_out == 0.0 {
         return SolverResult {
@@ -23,7 +23,6 @@ pub fn solver(m: &SparseSymmetricMatrix, rhs: &Vector) -> SolverResult {
         };
     }
 
-    let tolerance = TOLERANCE_FACTOR * residual_out;
     let ic_factor = Preconditioner::new(&m);
     let z = ic_factor.apply(&r);
 
@@ -36,6 +35,7 @@ pub fn solver(m: &SparseSymmetricMatrix, rhs: &Vector) -> SolverResult {
         };
     }
 
+    let tolerance = TOLERANCE_FACTOR * residual_out;
     let mut result = Vector(vec![0.0; rhs.0.len()]);
     let mut s = z;
     let srm = SparseRowMatrix::new(&m);

@@ -8,7 +8,6 @@ pub struct Preconditioner {
     values: Vec<f64>,
     row_index: Vec<usize>,
     column_pointers: Vec<usize>,
-    diagonals: Vec<f64>,
     inverse_diagonals: Vec<f64>,
 }
 
@@ -117,13 +116,41 @@ impl Preconditioner {
             values: values,
             row_index: row_index,
             column_pointers: column_pointers,
-            diagonals: diagonals,
             inverse_diagonals: inverse_diagonals,
         }
     }
 
     pub fn apply(&self, v: &Vector) -> Vector {
-        // TODO
-        return Vector(vec![]);
+        let z = self.solve_lower(&v);
+        self.solve_lower_transpose(&z)
+    }
+
+    fn solve_lower(&self, v: &Vector) -> Vector {
+        let mut result = v.clone();
+        for i in 0..self.length {
+            result.0[i] *= self.inverse_diagonals[i];
+            let x = self.column_pointers[i];
+            let y = self.column_pointers[i + 1];
+            for j in x..y {
+                let index = self.row_index[j];
+                result.0[index] -= self.values[j] * result.0[i];
+            }
+        }
+        result
+    }
+
+    fn solve_lower_transpose(&self, v: &Vector) -> Vector {
+        let mut result = v.clone();
+        let n = self.length - 1;
+        for i in (0..n).rev() {
+            let x = self.column_pointers[i];
+            let y = self.column_pointers[i + 1];
+            for j in x..y {
+                let index = self.row_index[j];
+                result.0[i] -= self.values[j] * result.0[index];
+            }
+            result.0[i] *= self.inverse_diagonals[i];
+        }
+        result
     }
 }
