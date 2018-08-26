@@ -1,5 +1,5 @@
 use vector::Vector;
-use sparse_symmetric_matrix::SparseSymmetricMatrix;
+use sparse_symmetric_matrix::{SparseSymmetricMatrix};
 use sparse_row_matrix::SparseRowMatrix;
 use preconditioner::Preconditioner;
 
@@ -63,5 +63,29 @@ pub fn solver(m: &SparseSymmetricMatrix, rhs: &Vector) -> SolverResult {
         completed: false,
         iterations: MAX_ITERATIONS,
         best_guess: r,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sparse_symmetric_matrix::{SparseSymmetricMatrix, Entry};
+    use vector::Vector;
+    use solver::solver;
+
+    #[test]
+    fn test_solve() {
+        let m = SparseSymmetricMatrix::new(&vec![
+            Entry { x: 0, y: 0, v: 1.0 },
+            Entry { x: 0, y: 1, v: 5.0 },
+            Entry { x: 0, y: 2, v: 6.0 },
+            Entry { x: 1, y: 1, v: 2.0 },
+        ]);
+        let v: Vector = Vector(vec![5.0, 6.0, 7.0]);
+        let result = solver(&m, &v);
+        assert_eq!(result.completed, true);
+        assert_eq!(result.iterations, 2);
+        assert_eq!(result.best_guess.0[0], 1.1666674087694608);
+        assert_eq!(result.best_guess.0[1], 0.0833110800778692);
+        assert_eq!(result.best_guess.0[2], 0.5694629884317245);
     }
 }

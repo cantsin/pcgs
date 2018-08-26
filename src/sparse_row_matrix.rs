@@ -39,11 +39,10 @@ impl SparseRowMatrix {
 
     // do not use the Mul trait, we want to borrow self.
     pub fn apply(&self, rhs: &Vector) -> Vector {
-        assert!(self.len() == rhs.0.len());
+        assert_eq!(self.len(), rhs.0.len());
         let n = self.len();
-        let mut result = vec![];
+        let mut result = vec![0.0; n];
         for i in 0..n {
-            result.push(0.0);
             let x = self.row_pointers[i];
             let y = self.row_pointers[i + 1];
             for j in x..y {
