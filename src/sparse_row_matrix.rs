@@ -30,7 +30,7 @@ impl SparseRowMatrix {
         SparseRowMatrix {
             values: values,
             column_index: column_index,
-            row_pointers: row_pointers
+            row_pointers: row_pointers,
         }
     }
 
@@ -47,7 +47,7 @@ impl fmt::Debug for SparseRowMatrix {
         let mut values = vec![];
         for i in 0..n {
             let x = self.row_pointers[i];
-            let y = self.row_pointers[i+1];
+            let y = self.row_pointers[i + 1];
             for j in x..y {
                 rows.push(i + 1);
                 columns.push(self.column_index[j] + 1);
@@ -56,7 +56,7 @@ impl fmt::Debug for SparseRowMatrix {
         }
         writeln!(f, "sparse({:?},...", rows);
         writeln!(f, "       {:?},...", columns);
-        write!(f,   "       {:?}, {}, {})", values, n, n)
+        write!(f, "       {:?}, {}, {})", values, n, n)
     }
 }
 
@@ -70,7 +70,7 @@ impl Mul<Vector> for SparseRowMatrix {
         for i in 0..n {
             result.push(0.0);
             let x = self.row_pointers[i];
-            let y = self.row_pointers[i+1];
+            let y = self.row_pointers[i + 1];
             for j in x..y {
                 let index = self.column_index[j];
                 result[i] += self.values[j] * rhs[index];
