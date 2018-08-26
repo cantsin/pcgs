@@ -25,6 +25,14 @@ impl Entry {
             v: self.v,
         }
     }
+
+    fn symmetric(&self) -> Entry {
+        Entry {
+            x: self.y,
+            y: self.x,
+            v: self.v,
+        }
+    }
 }
 
 impl SparseSymmetricMatrix {
@@ -34,6 +42,12 @@ impl SparseSymmetricMatrix {
             .cloned()
             .map(|e| e.lower_triangle())
             .collect::<Vec<Entry>>();
+        let mut symmetric_entries = sorted_entries
+            .iter()
+            .filter(|e| e.x != e.y)
+            .map(|e| e.symmetric())
+            .collect::<Vec<Entry>>();
+        sorted_entries.append(&mut symmetric_entries);
         sorted_entries.sort_by(|a, b| {
             return if a.x == b.x {
                 a.y.cmp(&b.y)
@@ -70,7 +84,7 @@ impl Validity for SparseSymmetricMatrix {
         self.values
             .iter()
             .flat_map(|v| v)
-            .filter(|e| !e.is_normal())
+            .filter(|e| !e.is_finite())
             .collect::<Vec<&f64>>()
             .len() == 0
     }
@@ -102,60 +116,72 @@ impl fmt::Debug for SparseSymmetricMatrix {
 #[test]
 fn test_construct() {
     let m = SparseSymmetricMatrix::new(&vec![
-        Entry { x: 0, y: 0, v: 1.5 },
-        Entry { x: 0, y: 1, v: 5.5 },
-        Entry { x: 0, y: 2, v: 6.5 },
-        Entry { x: 1, y: 1, v: 2.5 },
-        Entry { x: 1, y: 2, v: 8.5 },
-        Entry { x: 2, y: 2, v: 9.5 },
+        Entry { x: 0, y: 0, v: 1.0 },
+        Entry { x: 0, y: 1, v: 2.0 },
+        Entry { x: 0, y: 2, v: 3.0 },
+        Entry { x: 1, y: 1, v: 5.0 },
+        Entry { x: 1, y: 2, v: 6.0 },
+        Entry { x: 2, y: 2, v: 9.0 },
     ]);
     assert!(m.is_valid());
     assert_eq!(m.length, 2);
-    assert_eq!(m.indices, vec![vec![0, 1, 2], vec![1, 2], vec![2]]);
+    assert_eq!(m.indices, vec![vec![0, 1, 2], vec![0, 1, 2], vec![0, 1, 2]]);
     assert_eq!(
         m.values,
-        vec![vec![1.5, 5.5, 6.5], vec![2.5, 8.5], vec![9.5]]
+        vec![
+            vec![1.0, 2.0, 3.0],
+            vec![2.0, 5.0, 6.0],
+            vec![3.0, 6.0, 9.0],
+        ]
     );
 }
 
 #[test]
 fn test_mixed_construct() {
     let m = SparseSymmetricMatrix::new(&vec![
-        Entry { x: 2, y: 2, v: 9.5 },
-        Entry { x: 0, y: 0, v: 1.5 },
-        Entry { x: 0, y: 2, v: 6.5 },
-        Entry { x: 1, y: 1, v: 2.5 },
-        Entry { x: 1, y: 2, v: 8.5 },
-        Entry { x: 0, y: 1, v: 5.5 },
+        Entry { x: 2, y: 2, v: 9.0 },
+        Entry { x: 0, y: 0, v: 1.0 },
+        Entry { x: 0, y: 2, v: 3.0 },
+        Entry { x: 1, y: 1, v: 5.0 },
+        Entry { x: 1, y: 2, v: 6.0 },
+        Entry { x: 0, y: 1, v: 2.0 },
     ]);
     assert!(m.is_valid());
     assert_eq!(m.length, 2);
-    assert_eq!(m.indices, vec![vec![0, 1, 2], vec![1, 2], vec![2]]);
+    assert_eq!(m.indices, vec![vec![0, 1, 2], vec![0, 1, 2], vec![0, 1, 2]]);
     assert_eq!(
         m.values,
-        vec![vec![1.5, 5.5, 6.5], vec![2.5, 8.5], vec![9.5]]
+        vec![
+            vec![1.0, 2.0, 3.0],
+            vec![2.0, 5.0, 6.0],
+            vec![3.0, 6.0, 9.0],
+        ]
     );
 }
 
 #[test]
 fn test_duplicate_construct() {
     let m = SparseSymmetricMatrix::new(&vec![
-        Entry { x: 0, y: 1, v: 5.5 },
-        Entry { x: 0, y: 0, v: 1.5 },
-        Entry { x: 1, y: 1, v: 2.5 },
-        Entry { x: 2, y: 1, v: 8.5 },
-        Entry { x: 1, y: 1, v: 2.5 },
-        Entry { x: 0, y: 2, v: 6.5 },
-        Entry { x: 2, y: 2, v: 9.5 },
-        Entry { x: 2, y: 2, v: 9.5 },
-        Entry { x: 2, y: 0, v: 6.5 },
+        Entry { x: 0, y: 1, v: 2.0 },
+        Entry { x: 0, y: 0, v: 1.0 },
+        Entry { x: 1, y: 1, v: 5.0 },
+        Entry { x: 2, y: 1, v: 6.0 },
+        Entry { x: 1, y: 1, v: 5.0 },
+        Entry { x: 0, y: 2, v: 3.0 },
+        Entry { x: 2, y: 2, v: 9.0 },
+        Entry { x: 2, y: 2, v: 9.0 },
+        Entry { x: 2, y: 0, v: 3.0 },
     ]);
     assert!(m.is_valid());
     assert_eq!(m.length, 2);
-    assert_eq!(m.indices, vec![vec![0, 1, 2], vec![1, 2], vec![2]]);
+    assert_eq!(m.indices, vec![vec![0, 1, 2], vec![0, 1, 2], vec![0, 1, 2]]);
     assert_eq!(
         m.values,
-        vec![vec![1.5, 5.5, 6.5], vec![2.5, 8.5], vec![9.5]]
+        vec![
+            vec![1.0, 2.0, 3.0],
+            vec![2.0, 5.0, 6.0],
+            vec![3.0, 6.0, 9.0],
+        ]
     );
 }
 
@@ -171,12 +197,12 @@ fn test_sparse_construct() {
     ]);
     assert!(m.is_valid());
     assert_eq!(m.length, 10);
-    assert_eq!(
-        m.indices,
-        vec![vec![], vec![], vec![8], vec![], vec![], vec![10]]
-    );
-    assert_eq!(
-        m.values,
-        vec![vec![], vec![], vec![9.0], vec![], vec![], vec![10.0]]
-    );
+    assert_eq!(m.indices[2][0], 8);
+    assert_eq!(m.indices[5][0], 10);
+    assert_eq!(m.indices[8][0], 2);
+    assert_eq!(m.indices[10][0], 5);
+    assert_eq!(m.values[2][0], 9.0);
+    assert_eq!(m.values[5][0], 10.0);
+    assert_eq!(m.values[8][0], 9.0);
+    assert_eq!(m.values[10][0], 10.0);
 }

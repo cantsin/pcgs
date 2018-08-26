@@ -26,17 +26,16 @@ fn test_sparse_multiplication() {
     let eval_str = format!("disp({:?} * $$')", m);
     let s = builder().add_vector(&eval_str, &v2);
 
-    let filename = "test.octave";
+    let filename = "tests/test.octave";
     assert!(s.run(filename).is_ok());
     let output = Command::new("octave").arg(filename).output().expect(
         "octave failed to start",
     );
     let final_string = format!(
-        "   {:.4}\n   {:.4}\n    {:.4}\n",
+        "   {}\n   {}\n   {}\n",
         result.0[0],
         result.0[1],
         result.0[2]
     );
-    println!("{}", final_string);
     assert_eq!(final_string.as_bytes(), output.stdout.as_slice());
 }

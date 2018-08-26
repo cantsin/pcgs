@@ -60,7 +60,7 @@ impl Validity for SparseRowMatrix {
     fn is_valid(&self) -> bool {
         self.values
             .iter()
-            .filter(|e| !e.is_normal())
+            .filter(|e| !e.is_finite())
             .collect::<Vec<&f64>>()
             .len() == 0
     }

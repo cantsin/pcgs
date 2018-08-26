@@ -1,5 +1,5 @@
 use vector::Vector;
-use sparse_symmetric_matrix::{SparseSymmetricMatrix};
+use sparse_symmetric_matrix::SparseSymmetricMatrix;
 use sparse_row_matrix::SparseRowMatrix;
 use preconditioner::Preconditioner;
 
@@ -27,7 +27,7 @@ pub fn solver(m: &SparseSymmetricMatrix, rhs: &Vector) -> SolverResult {
     let z = ic_factor.apply(&r);
 
     let mut rho = z.dot(&r);
-    if rho == 0.0 || !rho.is_normal() {
+    if !rho.is_normal() {
         return SolverResult {
             completed: false,
             iterations: 0,
@@ -83,9 +83,9 @@ mod tests {
         let v: Vector = Vector(vec![5.0, 6.0, 7.0]);
         let result = solver(&m, &v);
         assert_eq!(result.completed, true);
-        assert_eq!(result.iterations, 2);
-        assert_eq!(result.best_guess.0[0], 1.1666674087694608);
-        assert_eq!(result.best_guess.0[1], 0.0833110800778692);
-        assert_eq!(result.best_guess.0[2], 0.5694629884317245);
+        assert_eq!(result.iterations, 3);
+        assert_eq!(result.best_guess.0[0], 1.1666666673535904);
+        assert_eq!(result.best_guess.0[1], 0.08333333333467363);
+        assert_eq!(result.best_guess.0[2], 0.5694444443288402);
     }
 }

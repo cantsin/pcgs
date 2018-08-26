@@ -3,6 +3,7 @@ use std::ops::Add;
 
 use validity::Validity;
 
+#[derive(Debug)]
 pub struct Vector(pub Vec<f64>);
 
 impl Vector {
@@ -25,7 +26,7 @@ impl Vector {
 
     // do not use the Mul trait, we want to borrow self.
     pub fn scale(&self, scale: f64) -> Vector {
-        assert!(scale.is_normal());
+        assert!(scale.is_finite());
         assert!(self.is_valid());
         Vector(self.0.iter().map(|e| e * scale).collect())
     }
@@ -52,7 +53,7 @@ impl Validity for Vector {
     fn is_valid(&self) -> bool {
         self.0
             .iter()
-            .filter(|e| !e.is_normal())
+            .filter(|e| !e.is_finite())
             .collect::<Vec<&f64>>()
             .len() == 0
     }
