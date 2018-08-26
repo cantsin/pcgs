@@ -41,7 +41,22 @@ impl SparseRowMatrix {
 
 impl fmt::Debug for SparseRowMatrix {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SparseRowMatrix")
+        let n = self.len();
+        let mut rows = vec![];
+        let mut columns = vec![];
+        let mut values = vec![];
+        for i in 0..n {
+            let x = self.row_pointers[i];
+            let y = self.row_pointers[i+1];
+            for j in x..y {
+                rows.push(i + 1);
+                columns.push(self.column_index[j] + 1);
+                values.push(self.values[j]);
+            }
+        }
+        writeln!(f, "sparse({:?},...", rows);
+        writeln!(f, "       {:?},...", columns);
+        write!(f,   "       {:?}, {}, {})", values, n, n)
     }
 }
 
@@ -50,8 +65,9 @@ impl Mul<Vector> for SparseRowMatrix {
 
     fn mul(self, rhs: Vector) -> Vector {
         assert!(self.len() == rhs.len());
+        let n = self.len();
         let mut result = vec![];
-        for i in 0..self.len() {
+        for i in 0..n {
             result.push(0.0);
             let x = self.row_pointers[i];
             let y = self.row_pointers[i+1];
