@@ -3,6 +3,7 @@ use std::fmt;
 
 use vector::Vector;
 use sparse_symmetric_matrix::SparseSymmetricMatrix;
+use validity::Validity;
 
 // we use this structure only for multiplication as it is more
 // efficient for this purpose than SparseSymmetricMatrix.
@@ -40,6 +41,7 @@ impl SparseRowMatrix {
     // do not use the Mul trait, we want to borrow self.
     pub fn apply(&self, rhs: &Vector) -> Vector {
         assert_eq!(self.len(), rhs.0.len());
+        assert!(self.is_valid());
         let n = self.len();
         let mut result = vec![0.0; n];
         for i in 0..n {
@@ -54,8 +56,19 @@ impl SparseRowMatrix {
     }
 }
 
+impl Validity for SparseRowMatrix {
+    fn is_valid(&self) -> bool {
+        self.values
+            .iter()
+            .filter(|e| !e.is_normal())
+            .collect::<Vec<&f64>>()
+            .len() == 0
+    }
+}
+
 impl fmt::Debug for SparseRowMatrix {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        assert!(self.is_valid());
         let n = self.len();
         let mut rows = vec![];
         let mut columns = vec![];

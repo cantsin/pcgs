@@ -2,6 +2,8 @@ use std::vec::Vec;
 use std::cmp::{min, max};
 use std::fmt;
 
+use validity::Validity;
+
 pub struct SparseSymmetricMatrix {
     pub length: usize,
     pub indices: Vec<Vec<usize>>,
@@ -63,6 +65,17 @@ impl SparseSymmetricMatrix {
     }
 }
 
+impl Validity for SparseSymmetricMatrix {
+    fn is_valid(&self) -> bool {
+        self.values
+            .iter()
+            .flat_map(|v| v)
+            .filter(|e| !e.is_normal())
+            .collect::<Vec<&f64>>()
+            .len() == 0
+    }
+}
+
 impl fmt::Debug for SparseSymmetricMatrix {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let n = self.length + 1;
@@ -96,6 +109,7 @@ fn test_construct() {
         Entry { x: 1, y: 2, v: 8.5 },
         Entry { x: 2, y: 2, v: 9.5 },
     ]);
+    assert!(m.is_valid());
     assert_eq!(m.length, 2);
     assert_eq!(m.indices, vec![vec![0, 1, 2], vec![1, 2], vec![2]]);
     assert_eq!(
@@ -114,6 +128,7 @@ fn test_mixed_construct() {
         Entry { x: 1, y: 2, v: 8.5 },
         Entry { x: 0, y: 1, v: 5.5 },
     ]);
+    assert!(m.is_valid());
     assert_eq!(m.length, 2);
     assert_eq!(m.indices, vec![vec![0, 1, 2], vec![1, 2], vec![2]]);
     assert_eq!(
@@ -135,6 +150,7 @@ fn test_duplicate_construct() {
         Entry { x: 2, y: 2, v: 9.5 },
         Entry { x: 2, y: 0, v: 6.5 },
     ]);
+    assert!(m.is_valid());
     assert_eq!(m.length, 2);
     assert_eq!(m.indices, vec![vec![0, 1, 2], vec![1, 2], vec![2]]);
     assert_eq!(
@@ -153,6 +169,7 @@ fn test_sparse_construct() {
         },
         Entry { x: 2, y: 8, v: 9.0 },
     ]);
+    assert!(m.is_valid());
     assert_eq!(m.length, 10);
     assert_eq!(
         m.indices,

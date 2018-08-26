@@ -3,3 +3,4 @@ pub mod sparse_row_matrix;
 pub mod vector;
 pub mod preconditioner;
 pub mod solver;
+pub mod validity;

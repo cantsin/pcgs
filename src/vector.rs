@@ -1,17 +1,11 @@
 use std::vec::Vec;
 use std::ops::Add;
 
+use validity::Validity;
+
 pub struct Vector(pub Vec<f64>);
 
 impl Vector {
-    pub fn is_valid(&self) -> bool {
-        self.0
-            .iter()
-            .filter(|e| !e.is_normal())
-            .collect::<Vec<&f64>>()
-            .len() == 0
-    }
-
     pub fn largest_absolute_value(&self) -> f64 {
         assert!(self.is_valid());
         self.0.iter().fold(0.0, |acc, &e| acc.abs().max(e.abs()))
@@ -51,6 +45,16 @@ impl Add for Vector {
                 .map(|(x, y)| x + y)
                 .collect(),
         )
+    }
+}
+
+impl Validity for Vector {
+    fn is_valid(&self) -> bool {
+        self.0
+            .iter()
+            .filter(|e| !e.is_normal())
+            .collect::<Vec<&f64>>()
+            .len() == 0
     }
 }
 
