@@ -22,6 +22,9 @@ impl Preconditioner {
         let mut diagonals = vec![];
         let mut inverse_diagonals = vec![];
 
+        // algorithm from Robert Bridson, see:
+        // https://www.cs.ubc.ca/~rbridson/fluidsimulation/
+
         // lower triangle
         for i in 0..matrix.length + 1 {
             column_pointers.push(row_index.len());
