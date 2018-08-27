@@ -36,7 +36,7 @@ impl Entry {
 }
 
 impl SparseSymmetricMatrix {
-    pub fn new(entries: &Vec<Entry>) -> SparseSymmetricMatrix {
+    pub fn new(entries: &[Entry]) -> SparseSymmetricMatrix {
         let mut sorted_entries = entries
             .iter()
             .cloned()
@@ -48,33 +48,26 @@ impl SparseSymmetricMatrix {
             .map(|e| e.symmetric())
             .collect::<Vec<Entry>>();
         sorted_entries.append(&mut symmetric_entries);
-        sorted_entries.sort_by(|a, b| {
-            return if a.x == b.x {
-                a.y.cmp(&b.y)
-            } else {
-                a.x.cmp(&b.x)
-            };
+        sorted_entries.sort_by(|a, b| if a.x == b.x {
+            a.y.cmp(&b.y)
+        } else {
+            a.x.cmp(&b.x)
         });
         sorted_entries.dedup_by(|a, b| a.x == b.x && a.y == b.y);
         let length = sorted_entries.iter().fold(
             0,
             |acc, e| max(acc, max(e.x, e.y)),
         );
-        let mut indices = vec![vec![]];
-        let mut values = vec![vec![]];
+        let mut indices = vec![vec![]; length + 1];
+        let mut values = vec![vec![]; length + 1];
         for entry in sorted_entries {
-            // empty columns
-            while indices.len() <= entry.x {
-                indices.push(vec![]);
-                values.push(vec![]);
-            }
             indices[entry.x].push(entry.y);
             values[entry.x].push(entry.v);
         }
         SparseSymmetricMatrix {
-            length: length,
-            indices: indices,
-            values: values,
+            length,
+            indices,
+            values,
         }
     }
 }
@@ -86,7 +79,7 @@ impl Validity for SparseSymmetricMatrix {
             .flat_map(|v| v)
             .filter(|e| !e.is_finite())
             .collect::<Vec<&f64>>()
-            .len() == 0
+            .is_empty()
     }
 }
 

@@ -4,11 +4,11 @@ use sparse_symmetric_matrix::SparseSymmetricMatrix;
 use vector::Vector;
 
 pub struct Preconditioner {
-    length: usize,
-    values: Vec<f64>,
-    row_index: Vec<usize>,
-    column_pointers: Vec<usize>,
-    inverse_diagonals: Vec<f64>,
+    pub length: usize,
+    pub values: Vec<f64>,
+    pub row_index: Vec<usize>,
+    pub column_pointers: Vec<usize>,
+    pub inverse_diagonals: Vec<f64>,
 }
 
 const MODIFIED_PARAMETER: f64 = 0.97;
@@ -57,6 +57,7 @@ impl Preconditioner {
 
             let col_s = column_pointers[k];
             let col_t = column_pointers[k + 1];
+            #[cfg_attr(feature = "cargo-clippy", allow(needless_range_loop))]
             for p in col_s..col_t {
                 values[p] *= inverse_diagonals[k];
             }
@@ -112,11 +113,11 @@ impl Preconditioner {
             }
         }
         Preconditioner {
-            length: length,
-            values: values,
-            row_index: row_index,
-            column_pointers: column_pointers,
-            inverse_diagonals: inverse_diagonals,
+            length,
+            values,
+            row_index,
+            column_pointers,
+            inverse_diagonals,
         }
     }
 
@@ -152,5 +153,87 @@ impl Preconditioner {
             result.0[i] *= self.inverse_diagonals[i];
         }
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sparse_symmetric_matrix::{SparseSymmetricMatrix, Entry};
+    use preconditioner::Preconditioner;
+
+    #[test]
+    fn test_positive_definite_matrix_preconditioner() {
+        let m = SparseSymmetricMatrix::new(&vec![
+            Entry {
+                x: 0,
+                y: 0,
+                v: 0.37,
+            },
+            Entry {
+                x: 1,
+                y: 0,
+                v: -0.05,
+            },
+            Entry {
+                x: 2,
+                y: 0,
+                v: -0.05,
+            },
+            Entry {
+                x: 3,
+                y: 0,
+                v: -0.07,
+            },
+            Entry {
+                x: 1,
+                y: 1,
+                v: 0.116,
+            },
+            Entry { x: 2, y: 1, v: 0.0 },
+            Entry {
+                x: 3,
+                y: 1,
+                v: -0.05,
+            },
+            Entry {
+                x: 2,
+                y: 2,
+                v: 0.116,
+            },
+            Entry {
+                x: 3,
+                y: 2,
+                v: -0.05,
+            },
+            Entry {
+                x: 3,
+                y: 3,
+                v: 0.202,
+            },
+        ]);
+        let p = Preconditioner::new(&m);
+        assert_eq!(p.length, 4);
+        assert_eq!(
+            p.values,
+            vec![
+                -0.08219949365267866,
+                -0.08219949365267866,
+                -0.11507929111375013,
+                -0.020442828820163496,
+                -0.1798968936174387,
+                -0.1913900502726929,
+            ]
+        );
+        assert_eq!(p.row_index, vec![1, 2, 3, 2, 3, 3]);
+        assert_eq!(p.column_pointers, vec![0, 3, 5, 6, 6]);
+        assert_eq!(
+            p.inverse_diagonals,
+            vec![
+                1.6439898730535731,
+                3.0255386653841962,
+                3.031342410667025,
+                2.889597639959034,
+            ]
+        );
     }
 }

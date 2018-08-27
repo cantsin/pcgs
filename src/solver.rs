@@ -80,12 +80,37 @@ mod tests {
             Entry { x: 0, y: 2, v: 6.0 },
             Entry { x: 1, y: 1, v: 2.0 },
         ]);
-        let v: Vector = Vector(vec![5.0, 6.0, 7.0]);
+        let v = Vector(vec![5.0, 6.0, 7.0]);
         let result = solver(&m, &v);
         assert_eq!(result.completed, true);
         assert_eq!(result.iterations, 3);
         assert_eq!(result.best_guess.0[0], 1.1666666673535904);
         assert_eq!(result.best_guess.0[1], 0.08333333333467363);
         assert_eq!(result.best_guess.0[2], 0.5694444443288402);
+    }
+
+    #[test]
+    fn test_solve2() {
+        let m = SparseSymmetricMatrix::new(&vec![
+            Entry { x: 0, y: 0, v: 3.0 },
+            Entry { x: 1, y: 0, v: 1.0 },
+            Entry { x: 1, y: 1, v: 4.0 },
+            Entry { x: 2, y: 1, v: 1.0 },
+            Entry { x: 3, y: 1, v: 3.0 },
+            Entry {
+                x: 2,
+                y: 2,
+                v: 10.0,
+            },
+            Entry { x: 3, y: 3, v: 3.0 },
+        ]);
+        let v = Vector(vec![1.0, 1.0, 1.0, 1.0]);
+        let result = solver(&m, &v);
+        assert_eq!(result.completed, true);
+        assert_eq!(result.iterations, 3);
+        assert_eq!(result.best_guess.0[0], 0.5882352941176471);
+        assert_eq!(result.best_guess.0[1], -0.764705882352941);
+        assert_eq!(result.best_guess.0[2], 0.17647058823529407);
+        assert_eq!(result.best_guess.0[3], 1.0980392156862744);
     }
 }

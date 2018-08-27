@@ -18,7 +18,7 @@ fn test_sparse_multiplication() {
         Entry { x: 1, y: 2, v: 8.5 },
         Entry { x: 2, y: 2, v: 9.5 },
     ]);
-    let v: Vector = Vector(vec![3.0, 2.0, 1.0]);
+    let v = Vector(vec![3.0, 2.0, 1.0]);
     let v2 = v.0.iter().cloned().collect::<Vec<f64>>();
     let srm = SparseRowMatrix::new(&m);
     let result = srm.apply(&v);

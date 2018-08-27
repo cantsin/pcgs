@@ -55,7 +55,7 @@ impl Validity for Vector {
             .iter()
             .filter(|e| !e.is_finite())
             .collect::<Vec<&f64>>()
-            .len() == 0
+            .is_empty()
     }
 }
 
@@ -63,4 +63,31 @@ impl Clone for Vector {
     fn clone(&self) -> Vector {
         Vector(self.0.clone())
     }
+}
+
+#[test]
+fn test_largest_absolute_value() {
+    let v = Vector(vec![-10.0, 2.0, 9.9]);
+    assert_eq!(v.largest_absolute_value(), 10.0);
+}
+
+#[test]
+fn test_dot() {
+    let x = Vector(vec![2.0, 4.0, 6.0]);
+    let y = Vector(vec![-1.0, -2.0, 3.0]);
+    assert_eq!(x.dot(&y), 8.0);
+}
+
+#[test]
+fn test_scale() {
+    let v = Vector(vec![2.0, 4.0, 6.0]);
+    assert_eq!(v.scale(0.0).0, vec![0.0, 0.0, 0.0]);
+    assert_eq!(v.scale(-2.0).0, vec![-4.0, -8.0, -12.0]);
+}
+
+#[test]
+fn test_add() {
+    let x = Vector(vec![2.0, 4.0, 6.0]);
+    let y = Vector(vec![-1.0, -2.0, 3.0]);
+    assert_eq!((x + y).0, vec![1.0, 2.0, 9.0]);
 }

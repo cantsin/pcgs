@@ -3,5 +3,5 @@ name = "pcgs"
 version = "0.1.0"
 authors = ["James Tranovich <jtranovich@gmail.com>"]
 
-[dependencies]
+[dev-dependencies]
 rustml = "0.0.7"
